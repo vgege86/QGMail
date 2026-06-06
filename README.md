@@ -41,18 +41,51 @@ SESSION_SECRET=una-cadena-aleatoria-larga
 PORT=3000
 ```
 
-## 3. Despliegue en QNAP Container Station
+## 3. Despliegue en QNAP Container Station (sin comandos)
+
+GitHub Actions construye la imagen automáticamente en cada push y la publica en `ghcr.io/vgege86/qgmail:latest`.
+
+### Opción A — Container Station (interfaz web, recomendada)
+
+1. Abre **Container Station** en tu QNAP
+2. _Crear_ → _Crear aplicación_
+3. Pega este docker-compose en el editor:
+
+```yaml
+version: "3.9"
+services:
+  qgmail:
+    image: ghcr.io/vgege86/qgmail:latest
+    ports:
+      - "3000:3000"
+    environment:
+      GOOGLE_CLIENT_ID: TU_CLIENT_ID
+      GOOGLE_CLIENT_SECRET: TU_CLIENT_SECRET
+      GOOGLE_REDIRECT_URI: http://TU-IP-QNAP:3000/auth/callback
+      SESSION_SECRET: una-cadena-aleatoria-larga
+      PORT: "3000"
+    volumes:
+      - /share/Container/qgmail/sessions:/app/sessions
+    restart: unless-stopped
+```
+
+4. Sustituye los valores en `environment` y pulsa **Crear**
+
+### Opción B — SSH en el QNAP (si tienes acceso)
 
 ```bash
-# Clona el repositorio en tu QNAP (vía SSH)
-git clone https://github.com/vgege86/QGMail /share/Container/qgmail
+# Solo necesitas descargar dos archivos, sin git
+mkdir -p /share/Container/qgmail/sessions
 cd /share/Container/qgmail
 
-# Crea el archivo .env con tus credenciales
-cp .env.example .env
-nano .env
+# Descarga la configuración (solo wget, sin git)
+wget -O docker-compose.yml https://raw.githubusercontent.com/vgege86/QGMail/claude/gmail-management-app-QPZMB/docker-compose.yml
+wget -O .env https://raw.githubusercontent.com/vgege86/QGMail/claude/gmail-management-app-QPZMB/.env.example
 
-# Levanta el contenedor
+# Edita .env con tus credenciales
+vi .env
+
+# Arranca
 docker compose up -d
 ```
 
