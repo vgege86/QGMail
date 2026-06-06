@@ -1,0 +1,11 @@
+version: "3.9"
+
+services:
+  qgmail:
+    build: .
+    ports:
+      - "3000:3000"
+    env_file: .env
+    volumes:
+      - ./sessions:/app/sessions
+    restart: unless-stopped
